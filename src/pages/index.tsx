@@ -62,20 +62,20 @@ export default function Home() {
 
   useEffect(() => {
     socket.on("Join", userJoinEventHandler)
-    return () => socket.off('Join', userJoinEventHandler);
+    return () => { socket.off('Join', userJoinEventHandler); }
   }, [])
   useEffect(() => {
     socket.on("Leave", userLeaveEventHandler)
-    return () => socket.off("Leave", userLeaveEventHandler)
+    return () => { socket.off("Leave", userLeaveEventHandler) }
   }, [])
   useEffect(() => {
     socket.on("inviteNumber", getInviteNumberEventHandler)
-    return () => socket.off("inviteNumber", getInviteNumberEventHandler)
+    return () => { socket.off("inviteNumber", getInviteNumberEventHandler) }
   }, [])
   useEffect(() => {
     if (username !== "") {
       socket.on("roomId", (msg) => { getRoomIdEventHandler(msg, username) })
-      return () => socket.off("roomId", getRoomIdEventHandler)
+      return () => { socket.off("roomId", getRoomIdEventHandler) }
     }
   }, [username])
 
