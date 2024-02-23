@@ -93,13 +93,18 @@ export default function Home() {
           startingGame ? <>
 
           </> : <>
-            <h1 className="text-center mb-4 text-2xl">{roomSettings.creater}の部屋</h1>
-            <div className="flex place-content-center gap-x-8">
-              <p className="py-2.5">{username}で参加中</p>
-              <button className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" onClick={() => { socket.emit("getInviteNumber", roomId) }}>招待ナンバーを取得</button>
+            <div className="p-4">
+              <div className="flex gap-x-4">
+                <h1 className="mb-4 text-2xl">{roomSettings.creater}の部屋</h1>
+                <p className="text-xl">{username}で参加中</p>
+              </div>
+              <div className="flex gap-x-4">
+                <button className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" onClick={() => { socket.emit("getInviteNumber", roomId) }}>招待ナンバーを取得</button>
+                <button className="text-yellow-400 hover:text-white border border-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900">ゲームを開始</button>
+              </div>
+              <p className="text-2xl">{getInviteNumber}</p>
+              <p className="text-slate-300">roomId : {roomId} , sid : {socket.id}</p>
             </div>
-            <p className="text-center text-2xl">{getInviteNumber}</p>
-            <p className="text-slate-300">roomId : {roomId} , sid : {socket.id}</p>
           </> : <>
             <div className="p-8">
               <p>招待ナンバー</p>
