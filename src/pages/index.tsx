@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 //components
 import InviteNumber from "../components/invitenumber";
 import RuleCheckBox from "../components/ruleCheckBox"
+import Suit from "../components/suit";
 
 export default function Home() {
   //State-ユーザー関係
@@ -92,7 +93,8 @@ export default function Home() {
   }, [])
 
   const getCardsEventHandler = useCallback((msg: any) => {
-    setMyCards(msg)
+    const sorted = msg.sort((first: any, second: any) => first.num - second.num);
+    setMyCards(sorted)
   }, [])
 
   useEffect(() => {
@@ -164,7 +166,8 @@ export default function Home() {
                   {myCards.map((card: any) => {
                     return <>
                       <div>
-                        <p>絵柄:{card.suit} | 番号:{card.num}</p>
+                        <p className="text-2xl"><Suit suit={card.suit} /></p>
+                        <p className="text-lg">{card.num}</p>
                       </div>
                     </>
                   })}
