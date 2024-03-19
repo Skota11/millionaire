@@ -242,7 +242,7 @@ export default function Home() {
                               temp.splice(temp.indexOf(card), 1)
                               setSelectCards(temp);
                             } else {
-                              if (selectCards[0].num == card.num) {
+                              if (selectCards[0].num == card.num || card.num == 0) {
                                 const temp = [...selectCards]
                                 temp.push(card)
                                 setSelectCards(temp);
@@ -253,7 +253,9 @@ export default function Home() {
                               const temp = [...selectCards]
                               temp.push(card)
                               setSelectCards(temp);
-                            } else if ((field[0].num == 13 && card.num <= 2) || (field[0].num <= 2 && (0 == card.num || (field[0].num < card.num && card.num <= 2))) || ((3 <= field[0].num && field[0].num <= 12) && (card.num == 0 || card.num == 1 || card.num == 2 || field[0].num < card.num))) {
+                            } else if(field[0].num == 0 && roomSettings["eight"] && card.num == 3 && card.suit == 4) {
+                              socket.emit("Play", { sid: socket.id, pass: false , spade : true , cards : [{num : 3 , suit : 4}] });
+                            }else if ((field[0].num == 13 && card.num <= 2) || (field[0].num !== 0 &&  field[0].num <= 2 && (0 == card.num || (field[0].num < card.num && card.num <= 2))) || ((3 <= field[0].num && field[0].num <= 12) && (card.num == 0 || card.num == 1 || card.num == 2 || field[0].num < card.num))) {
                               const temp = [...selectCards]
                               temp.push(card)
                               setSelectCards(temp);
@@ -273,12 +275,12 @@ export default function Home() {
               <div className="flex place-content-center gap-x-4 my-4">
                 <button className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900" onClick={() => {
                   if (socket.id == turn) {
-                    socket.emit("Play", { sid: socket.id, pass: true });
+                    socket.emit("Play", { sid: socket.id, pass: true , spade:false});
                   }
                 }}>パス</button>
                 <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" disabled={(field.length === 0 && selectCards.length === 0) || (field.length !== 0 && selectCards.length !== pair)} onClick={() => {
                   if (socket.id == turn) {
-                    socket.emit("Play", { sid: socket.id, cards: selectCards, start: field.length == 0, length: selectCards.length });
+                    socket.emit("Play", { sid: socket.id, cards: selectCards, start: field.length == 0, length: selectCards.length , pass:false , spade : false});
                   }
                 }}>手札を出す</button>
               </div> : <></>}
