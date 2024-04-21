@@ -34,7 +34,7 @@ export default function Home() {
   const [turn, SetTurn] = useState("");
   const [field, setField]: [field: any, setField: any] = useState([]);
   const [pair, setPair]: [pair: any, setPair: any] = useState(1);
-  const [winThrougth , setWinThrough] : [winThrough :any , setWinThrough : any] = useState([])
+  const [winThrough, setWinThrough]: [winThrough: any, setWinThrough: any] = useState([])
 
   //State-その他
   const [alreadyStart, setAlreadyStart] = useState("");
@@ -125,11 +125,21 @@ export default function Home() {
     setSelectCards([])
   }, [])
 
-  const getWinThrougthEventHandler = useCallback((msg:any) => {
-    const temp = [...winThrougth]
+  const getWinThroughEventHandler = useCallback((msg: any) => {
+    const temp = [...winThrough]
     temp.push(msg)
     setWinThrough(temp)
-  } , [])
+  }, [])
+
+  const getFinishGameEventHandler = useCallback(() => {
+    setStartingGame(false)
+    setWinThrough([])
+    setPair(1);
+    setField([])
+    SetTurn("")
+    setSelectCards([])
+
+  }, [])
 
   useEffect(() => {
     socket.on("Join", userJoinEventHandler)
@@ -186,8 +196,12 @@ export default function Home() {
     return () => { socket.off("Play", getPlayEventHandler) }
   }, [])
   useEffect(() => {
-    socket.on("winThrougth", getWinThrougthEventHandler)
-    return () => { socket.off("winThrougth", getWinThrougthEventHandler) }
+    socket.on("winThrough", getWinThroughEventHandler)
+    return () => { socket.off("winThrough", getWinThroughEventHandler) }
+  }, [])
+  useEffect(() => {
+    socket.on("FinishGame", getFinishGameEventHandler)
+    return () => { socket.off("FinishGame", getFinishGameEventHandler) }
   }, [])
 
 
@@ -209,25 +223,29 @@ export default function Home() {
       {username ?
         roomId ?
           startingGame ? <>
-            <p className="mt-4">Player</p>
-            <div className="flex gap-x-4">
-              {playerNames && cardsNumber ? roomMember.map((id: string) => {
-                let TurnedBorder = "border-slate-500"
-                if (turn == id) {
-                  TurnedBorder = "border-orange-700"
-                  console.log("set")
-                }
-                return <>
-                  <div>
-                  <div className={`p-2 border-solid border-b-4 ${TurnedBorder}`}>
-                    <p className="text-lg">{playerNames[id]}  <TbCardsFilled className="inline" /> {cardsNumber[id]}</p>
-                    
-                  </div>
-                  {winThrougth.includes(id) ? <><p className="text-center my-2">勝ち抜け</p></> :<></>}
-                  </div>
-                  
-                </>
-              }) : <></>}
+            <div className="flex place-content-center">
+              <div>
+                <p className="mt-4">Player</p>
+                <div className="flex gap-x-4">
+                  {playerNames && cardsNumber ? roomMember.map((id: string) => {
+                    let TurnedBorder = "border-slate-500"
+                    if (turn == id) {
+                      TurnedBorder = "border-orange-700"
+                      console.log("set")
+                    }
+                    return <>
+                      <div>
+                        <div className={`p-2 border-solid border-b-4 ${TurnedBorder}`}>
+                          <p className="text-lg">{playerNames[id]}  <TbCardsFilled className="inline" /> {cardsNumber[id]}</p>
+
+                        </div>
+                        {winThrough.includes(id) ? <><p className="text-center my-2">勝ち抜け</p></> : <></>}
+                      </div>
+
+                    </>
+                  }) : <></>}
+                </div>
+              </div>
             </div>
             <div className="flex flex-wrap place-content-center gap-x-1 my-4">
               {field?.map((card: any) => {
@@ -269,9 +287,9 @@ export default function Home() {
                               const temp = [...selectCards]
                               temp.push(card)
                               setSelectCards(temp);
-                            } else if(field[0].num == 0 && roomSettings["eight"] && card.num == 3 && card.suit == 4) {
-                              socket.emit("Play", { sid: socket.id, pass: false , spade : true , cards : [{num : 3 , suit : 4}] });
-                            }else if ((field[0].num == 13 && card.num <= 2) || (field[0].num !== 0 &&  field[0].num <= 2 && (0 == card.num || (field[0].num < card.num && card.num <= 2))) || ((3 <= field[0].num && field[0].num <= 12) && (card.num == 0 || card.num == 1 || card.num == 2 || field[0].num < card.num))) {
+                            } else if (field[0].num == 0 && roomSettings["eight"] && card.num == 3 && card.suit == 4) {
+                              socket.emit("Play", { sid: socket.id, pass: false, spade: true, cards: [{ num: 3, suit: 4 }] });
+                            } else if ((field[0].num == 13 && card.num <= 2) || (field[0].num !== 0 && field[0].num <= 2 && (0 == card.num || (field[0].num < card.num && card.num <= 2))) || ((3 <= field[0].num && field[0].num <= 12) && (card.num == 0 || card.num == 1 || card.num == 2 || field[0].num < card.num))) {
                               const temp = [...selectCards]
                               temp.push(card)
                               setSelectCards(temp);
@@ -289,14 +307,14 @@ export default function Home() {
             </div>
             {socket.id == turn ?
               <div className="flex place-content-center gap-x-4 my-4">
-                <button className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900" onClick={() => {
+                <button className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900 " onClick={() => {
                   if (socket.id == turn) {
-                    socket.emit("Play", { sid: socket.id, pass: true , spade:false});
+                    socket.emit("Play", { sid: socket.id, pass: true, spade: false });
                   }
                 }}>パス</button>
-                <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" disabled={(field.length === 0 && selectCards.length === 0) || (field.length !== 0 && selectCards.length !== pair)} onClick={() => {
+                <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 disabled:bg-gray-800" disabled={(field.length === 0 && selectCards.length === 0) || (field.length !== 0 && selectCards.length !== pair)} onClick={() => {
                   if (socket.id == turn) {
-                    socket.emit("Play", { sid: socket.id, cards: selectCards, start: field.length == 0, length: selectCards.length , pass:false , spade : false});
+                    socket.emit("Play", { sid: socket.id, cards: selectCards, start: field.length == 0, length: selectCards.length, pass: false, spade: false });
                   }
                 }}>手札を出す</button>
               </div> : <></>}
@@ -332,9 +350,6 @@ export default function Home() {
             </div>
           </> : <>
           <div className="flex place-content-center">
-            <button onClick={() => { setUsername("test"); socket.emit("createNewRoom", { joker: true, eight: true, topDown: false, spadeReturn: true, creater: "test" }); }}>test1</button>
-            <button onClick={() => { setUsername("test2") }}>test2</button>
-            <button onClick={() => { setUsername("test3") }}>test3</button>
             <p><label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ニックネーム</label> <input id="username" type="text" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={(e) => { setInput_username(e.target.value) }} value={input_username} /></p>
           </div>
           <p className="text-center py-4"><button className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={() => { if (input_username) { setUsername(input_username) } }}>プレイ</button></p>
