@@ -34,6 +34,7 @@ export default function Home() {
   const [turn, SetTurn] = useState("");
   const [field, setField]: [field: any, setField: any] = useState([]);
   const [pair, setPair]: [pair: any, setPair: any] = useState(1);
+  const [winThrougth , setWinThrough] : [winThrough :any , setWinThrough : any] = useState([])
 
   //State-その他
   const [alreadyStart, setAlreadyStart] = useState("");
@@ -124,6 +125,12 @@ export default function Home() {
     setSelectCards([])
   }, [])
 
+  const getWinThrougthEventHandler = useCallback((msg:any) => {
+    const temp = [...winThrougth]
+    temp.push(msg)
+    setWinThrough(temp)
+  } , [])
+
   useEffect(() => {
     socket.on("Join", userJoinEventHandler)
     return () => { socket.off('Join', userJoinEventHandler); }
@@ -178,6 +185,10 @@ export default function Home() {
     socket.on("Play", getPlayEventHandler)
     return () => { socket.off("Play", getPlayEventHandler) }
   }, [])
+  useEffect(() => {
+    socket.on("winThrougth", getWinThrougthEventHandler)
+    return () => { socket.off("winThrougth", getWinThrougthEventHandler) }
+  }, [])
 
 
   //招待ナンバー参加者の処理
@@ -207,9 +218,14 @@ export default function Home() {
                   console.log("set")
                 }
                 return <>
+                  <div>
                   <div className={`p-2 border-solid border-b-4 ${TurnedBorder}`}>
                     <p className="text-lg">{playerNames[id]}  <TbCardsFilled className="inline" /> {cardsNumber[id]}</p>
+                    
                   </div>
+                  {winThrougth.includes(id) ? <><p className="text-center my-2">勝ち抜け</p></> :<></>}
+                  </div>
+                  
                 </>
               }) : <></>}
             </div>
